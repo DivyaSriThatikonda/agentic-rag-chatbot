@@ -972,7 +972,6 @@
 #     st.rerun()
 
 import streamlit as st
-import uuid
 from agents import IngestionAgent, RetrievalAgent, LLMResponseAgent
 
 # --- Page Config ---
@@ -997,11 +996,12 @@ if "retrieval_agent" not in st.session_state:
     st.session_state.retrieval_agent = RetrievalAgent()
 if "processed_files" not in st.session_state:
     st.session_state.processed_files = False
+if "status_message" not in st.session_state:
+    st.session_state.status_message = None
 
 # --- Sidebar ---
 with st.sidebar:
     st.markdown("## 📂 Upload Your Documents")
-    
     st.info("Note: Processing new documents will start a new session and **delete all previously uploaded data**.")
     
     uploaded_files = st.file_uploader(
@@ -1023,16 +1023,37 @@ with st.sidebar:
                     combined_text = "\n\n".join(all_text_content)
                     st.session_state.retrieval_agent.ingest_and_embed(combined_text)
                     st.session_state.processed_files = True
-                    st.session_state.chat_history = [] # Clear chat history for the new session
-                    st.success("✅ New documents processed and ready!")
+                    st.session_state.chat_history = []
+                    st.session_state.status_message = {"msg": "✅ New documents processed and ready!", "type": "success"}
                     st.rerun()
                 else:
-                    st.error("No text could be extracted from the documents.")
+                    st.session_state.status_message = {"msg": "No text could be extracted from the documents.", "type": "error"}
+                    st.rerun()
         else:
-            st.warning("Please upload at least one file to process.")
+            st.session_state.status_message = {"msg": "Please upload at least one file to process.", "type": "warning"}
+            st.rerun()
+
+    # --- CHANGE: Restored the "Recent Questions" history feature ---
+    st.markdown("---")
+    st.markdown("## 🕑 Recent Questions")
+    if st.session_state.chat_history:
+        user_questions = [msg['content'] for msg in st.session_state.chat_history if msg['role'] == 'user']
+        for question in user_questions[-5:]: # Display the last 5 questions
+            st.markdown(f"- {question}")
+    else:
+        st.info("No questions have been asked in this session yet.")
 
 # --- App Header ---
 st.markdown("<div class='header-box'>🎨 Agentic RAG Chatbot</div>", unsafe_allow_html=True)
+
+# --- Display the persistent status message ---
+if st.session_state.status_message:
+    if st.session_state.status_message["type"] == "success":
+        st.success(st.session_state.status_message["msg"])
+    elif st.session_state.status_message["type"] == "error":
+        st.error(st.session_state.status_message["msg"])
+    elif st.session_state.status_message["type"] == "warning":
+        st.warning(st.session_state.status_message["msg"])
 
 # --- Intro Message ---
 if not st.session_state.processed_files:
@@ -1053,6 +1074,7 @@ for message in st.session_state.chat_history:
 
 # --- User Input & Agent Logic ---
 if user_query := st.chat_input("Ask a question about your documents..."):
+    st.session_state.status_message = None # Clear status message on new input
     if not st.session_state.processed_files:
         st.warning("Please process your documents before asking a question.")
     else:
@@ -1062,12 +1084,10 @@ if user_query := st.chat_input("Ask a question about your documents..."):
 
         with st.spinner("Thinking..."):
             retrieved_context = st.session_state.retrieval_agent.retrieve_context(user_query)
-            ai_response = LLMResponseAgent(
-                query=user_query,
-                context_chunks=retrieved_context
-            )
+            ai_response = LLMResponseAgent(query=user_query, context_chunks=retrieved_context)
 
         assistant_message = {"role": "assistant", "content": ai_response, "sources": retrieved_context}
         st.session_state.chat_history.append(assistant_message)
         st.rerun()
+
 
