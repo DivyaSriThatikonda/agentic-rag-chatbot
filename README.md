@@ -51,22 +51,27 @@ git clone [https://github.com/your-username/your-repo-name.git](https://github.c
 cd your-repo-name
 
 **3. Create a Virtual Environment**
+
 It's highly recommended to use a virtual environment to manage dependencies.
 
 **For Windows**
+
 python -m venv .venv
 .\.venv\Scripts\activate
 
 **For macOS/Linux**
+
 python3 -m venv .venv
 source .venv/bin/activate
 
 **4. Install Dependencies**
+
 Install all the required Python packages using the requirements.txt file.
 
 pip install -r requirements.txt
 
 **5. Set Up Environment Variables**
+
 You need to provide your API keys for Pinecone and OpenRouter.
 
 a. Create a new file named .env in the root of the project.
@@ -74,12 +79,15 @@ a. Create a new file named .env in the root of the project.
 b. Add the following content to the .env file, replacing the placeholder text with your actual keys:
 
 **Get this from your Pinecone project dashboard**
+
 PINECONE_API_KEY="your_pinecone_api_key_here"
 
 **Get this from your OpenRouter.ai account keys page**
+
 OPENROUTER_API_KEY="sk-or-your_openrouter_api_key_here"
 
 **6. Create a Pinecone Index**
+
 Before running the app for the first time, you must create a vector index in your Pinecone account.
 
 a. Log in to your Pinecone dashboard.
@@ -89,6 +97,7 @@ b. Create a new index with the following specifications:
 -   Metric: cosine
 
 ## ▶️ How to Run the Application
+
 Once the setup is complete, run the following command in your terminal from the project's root directory:
 
 streamlit run app.py
