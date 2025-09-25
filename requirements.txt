@@ -1,0 +1,15 @@
+streamlit
+python-dotenv
+langchain
+langchain-community
+langchain-huggingface
+langchain-pinecone
+#langchain-google-genai
+langchain-openai
+pypdf
+python-docx
+python-pptx
+pandas
+sentence-transformers
+#docx2txt     # For .docx files (Corrected)
+#unstructured # For .pptx files (Corrected)
