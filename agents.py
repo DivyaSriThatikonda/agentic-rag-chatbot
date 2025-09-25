@@ -544,7 +544,53 @@ from langchain.schema.output_parser import StrOutputParser
 load_dotenv()
 
 
-# Agent 1: IngestionAgent
+# # Agent 1: IngestionAgent
+# def IngestionAgent(uploaded_file):
+#     """
+#     Parses documents by writing them to a temporary file and then cleaning up.
+#     Returns the extracted text content as a single string.
+#     """
+#     file_extension = uploaded_file.name.split('.')[-1].lower()
+
+#     # Use tempfile to create a secure temporary file
+#     with tempfile.NamedTemporaryFile(delete=False, suffix=f".{file_extension}") as temp_file:
+#         temp_file.write(uploaded_file.getbuffer())
+#         temp_file_path = temp_file.name
+
+#     documents_text = ""
+#     try:
+#         # Process the file based on its extension
+#         if file_extension == "pdf":
+#             loader = PyPDFLoader(temp_file_path)
+#             documents = loader.load()
+#             documents_text = "\n".join([doc.page_content for doc in documents])
+#         elif file_extension == "docx":
+#             loader = Docx2txtLoader(temp_file_path)
+#             documents = loader.load()
+#             documents_text = "\n".join([doc.page_content for doc in documents])
+#         elif file_extension == "pptx":
+#             loader = UnstructuredPowerPointLoader(temp_file_path)
+#             documents = loader.load()
+#             documents_text = "\n".join([doc.page_content for doc in documents])
+#         elif file_extension == "csv":
+#             df = pd.read_csv(temp_file_path)
+#             documents_text = df.to_string()
+#         elif file_extension in ["txt", "md"]:
+#             with open(temp_file_path, "r", encoding="utf-8") as f:
+#                 documents_text = f.read()
+#         else:
+#             print(f"Unsupported file type: {file_extension}")
+#             return None
+
+#     except Exception as e:
+#         print(f"Error processing file {uploaded_file.name}: {e}")
+#         return None
+#     finally:
+#         # Ensure the temporary file is always removed
+#         os.remove(temp_file_path)
+
+#     return documents_text
+
 def IngestionAgent(uploaded_file):
     """
     Parses documents by writing them to a temporary file and then cleaning up.
@@ -552,14 +598,12 @@ def IngestionAgent(uploaded_file):
     """
     file_extension = uploaded_file.name.split('.')[-1].lower()
 
-    # Use tempfile to create a secure temporary file
     with tempfile.NamedTemporaryFile(delete=False, suffix=f".{file_extension}") as temp_file:
         temp_file.write(uploaded_file.getbuffer())
         temp_file_path = temp_file.name
 
     documents_text = ""
     try:
-        # Process the file based on its extension
         if file_extension == "pdf":
             loader = PyPDFLoader(temp_file_path)
             documents = loader.load()
@@ -572,9 +616,18 @@ def IngestionAgent(uploaded_file):
             loader = UnstructuredPowerPointLoader(temp_file_path)
             documents = loader.load()
             documents_text = "\n".join([doc.page_content for doc in documents])
+        
+        # --- NEW & IMPROVED CSV HANDLING ---
         elif file_extension == "csv":
             df = pd.read_csv(temp_file_path)
-            documents_text = df.to_string()
+            # Convert each row into a descriptive sentence
+            sentences = []
+            for index, row in df.iterrows():
+                row_str = ", ".join([f"{col}: {val}" for col, val in row.dropna().items()])
+                sentences.append(f"Row {index+1} contains the following data: {row_str}.")
+            documents_text = "\n".join(sentences)
+        # --- END OF CSV HANDLING UPDATE ---
+
         elif file_extension in ["txt", "md"]:
             with open(temp_file_path, "r", encoding="utf-8") as f:
                 documents_text = f.read()
@@ -586,7 +639,6 @@ def IngestionAgent(uploaded_file):
         print(f"Error processing file {uploaded_file.name}: {e}")
         return None
     finally:
-        # Ensure the temporary file is always removed
         os.remove(temp_file_path)
 
     return documents_text
@@ -668,3 +720,4 @@ def LLMResponseAgent(query: str, context_chunks: list):
     response = chain.invoke({"context": context_str, "question": query})
 
     return response
+
