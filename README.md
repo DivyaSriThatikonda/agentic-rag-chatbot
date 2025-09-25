@@ -37,7 +37,7 @@ This project is a sophisticated, agent-based Retrieval-Augmented Generation (RAG
 ## ⚙️ Setup and Installation
 Follow these steps to set up and run the project locally.
 
-1. Prerequisites
+**1. Prerequisites**
    
 a. Python 3.9 or higher
 
@@ -45,12 +45,12 @@ b. An active Pinecone account
 
 c. An active OpenRouter.ai account
 
-2. Clone the Repository
+**2. Clone the Repository**
    
 git clone [https://github.com/your-username/your-repo-name.git](https://github.com/your-username/your-repo-name.git)
 cd your-repo-name
 
-4. Create a Virtual Environment
+**3. Create a Virtual Environment**
 It's highly recommended to use a virtual environment to manage dependencies.
 
 **For Windows**
@@ -61,12 +61,12 @@ python -m venv .venv
 python3 -m venv .venv
 source .venv/bin/activate
 
-4. Install Dependencies
+**4. Install Dependencies**
 Install all the required Python packages using the requirements.txt file.
 
 pip install -r requirements.txt
 
-5. Set Up Environment Variables
+**5. Set Up Environment Variables**
 You need to provide your API keys for Pinecone and OpenRouter.
 
 a. Create a new file named .env in the root of the project.
@@ -79,7 +79,7 @@ PINECONE_API_KEY="your_pinecone_api_key_here"
 **Get this from your OpenRouter.ai account keys page**
 OPENROUTER_API_KEY="sk-or-your_openrouter_api_key_here"
 
-6. Create a Pinecone Index
+**6. Create a Pinecone Index**
 Before running the app for the first time, you must create a vector index in your Pinecone account.
 
 a. Log in to your Pinecone dashboard.
