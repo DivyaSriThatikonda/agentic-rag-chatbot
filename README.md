@@ -46,7 +46,7 @@ An active Pinecone account
 An active OpenRouter.ai account
 
 2. Clone the Repository
-3. 
+   
 git clone [https://github.com/your-username/your-repo-name.git](https://github.com/your-username/your-repo-name.git)
 cd your-repo-name
 
@@ -73,10 +73,10 @@ a. Create a new file named .env in the root of the project.
 
 b. Add the following content to the .env file, replacing the placeholder text with your actual keys:
 
-# Get this from your Pinecone project dashboard
+**Get this from your Pinecone project dashboard**
 PINECONE_API_KEY="your_pinecone_api_key_here"
 
-# Get this from your OpenRouter.ai account keys page
+**Get this from your OpenRouter.ai account keys page**
 OPENROUTER_API_KEY="sk-or-your_openrouter_api_key_here"
 
 6. Create a Pinecone Index
@@ -88,7 +88,7 @@ b. Create a new index with the following specifications:
 -   Dimensions: 384 (This is required for the all-MiniLM-L6-v2 model)
 -   Metric: cosine
 
-▶️ How to Run the Application
+## ▶️ How to Run the Application
 Once the setup is complete, run the following command in your terminal from the project's root directory:
 
 streamlit run app.py
