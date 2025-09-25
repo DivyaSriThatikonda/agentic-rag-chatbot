@@ -832,9 +832,10 @@ def LLMResponseAgent(query: str, context_chunks: list):
     **ANSWER:**
     """
     prompt = PromptTemplate(template=template, input_variables=["context", "question"])
-    llm = ChatOpenAI(model="openai/gpt-4o", openai_api_key=os.getenv("OPENROUTER_API_KEY"), openai_api_base="https://openrouter.ai/api/v1")
+    llm = ChatOpenAI(model="x-ai/grok-4-fast:free", openai_api_key=os.getenv("OPENROUTER_API_KEY"), openai_api_base="https://openrouter.ai/api/v1")
     chain = prompt | llm | StrOutputParser()
     response = chain.invoke({"context": context_str, "question": query})
     return response
+
 
 
