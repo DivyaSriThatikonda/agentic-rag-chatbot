@@ -486,7 +486,7 @@ class RetrievalAgent:
     def retrieve_context(self, query: str):
         """Retrieves relevant context chunks for a given query from Pinecone."""
         print(f"Retrieving context for query: '{query}'")
-        retrieved_docs = self.vector_store.similarity_search(query, k=3)
+        retrieved_docs = self.vector_store.similarity_search(query, k=7)
         return retrieved_docs
 
 
@@ -523,5 +523,6 @@ def LLMResponseAgent(query: str, context_chunks: list):
     chain = prompt | llm | StrOutputParser()
 
     response = chain.invoke({"context": context_str, "question": query})
+
 
     return response
