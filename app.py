@@ -684,139 +684,239 @@
 #
 #     st.rerun()
 
+# before final code
+# import streamlit as st
+# import uuid
+# from agents import IngestionAgent, RetrievalAgent, LLMResponseAgent
+
+# # --- Page Config ---
+# st.set_page_config(page_title="Agentic RAG Chatbot", page_icon="🎨", layout="wide")
+
+# # --- NEW CSS: Warm Pastel Orange & Cream Theme ---
+# st.markdown("""
+# <style>
+# /* Core body and font styles */
+# body {
+#     background-color: #FAF3E0; /* Soft Cream Background */
+#     font-family: 'Helvetica Neue', sans-serif;
+# }
+
+# /* Header Box */
+# .header-box {
+#     background: #FFFFFF;
+#     border: 1px solid #E5DCC3;
+#     padding: 18px;
+#     border-radius: 12px;
+#     text-align: center;
+#     font-size: 24px;
+#     font-weight: 600;
+#     color: #4E423D; /* Warm dark brown text */
+#     margin-bottom: 25px;
+#     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+# }
+
+# /* Chat Bubbles - Warm & Friendly Design */
+# .chat-bubble-user {
+#     background-color: #FAB488; /* Pastel Orange */
+#     color: #4E423D;
+#     padding: 14px 20px;
+#     border-radius: 18px 18px 4px 18px;
+#     margin: 6px 0;
+#     max-width: 70%;
+#     float: right;
+#     clear: both;
+#     line-height: 1.6;
+#     border: 1px solid #F8A56E;
+# }
+# .chat-bubble-assistant {
+#     background-color: #FFFFFF; /* Clean white for contrast */
+#     color: #4E423D;
+#     border: 1px solid #E5DCC3;
+#     padding: 14px 20px;
+#     border-radius: 18px 18px 18px 4px;
+#     margin: 6px 0;
+#     max-width: 80%;
+#     float: left;
+#     clear: both;
+#     box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+#     line-height: 1.6;
+# }
+
+# /* Expander for sources */
+# .stExpander {
+#     border: none !important;
+#     box-shadow: none !important;
+# }
+# .st-emotion-cache-1h9usn1 { /* Targets the expander header */
+#     font-size: 14px;
+#     color: #6F6259;
+# }
+# </style>
+# """, unsafe_allow_html=True)
+
+# # --- Session State ---
+# if "chat_history" not in st.session_state:
+#     st.session_state.chat_history = []
+# if "retrieval_agent" not in st.session_state:
+#     st.session_state.retrieval_agent = RetrievalAgent()
+
+# # --- Sidebar ---
+# with st.sidebar:
+#     st.markdown("## 📂 Drop Your Documents")
+#     uploaded_files = st.file_uploader(
+#         "Upload files here",
+#         type=["pdf", "docx", "pptx", "csv", "txt"],
+#         accept_multiple_files=True
+#     )
+
+#     if uploaded_files and st.button("🚀 Process Documents"):
+#         with st.spinner("Processing documents..."):
+#             for file in uploaded_files:
+#                 text_content = IngestionAgent(file)
+#                 if text_content:
+#                     st.session_state.retrieval_agent.ingest_and_embed(text_content)
+#         st.success("✅ Documents processed successfully!")
+
+#     st.markdown("---")
+#     st.markdown("## 🕑 Recent Questions")
+#     if st.session_state.chat_history:
+#         user_questions = [msg['content'] for msg in st.session_state.chat_history if msg['role'] == 'user']
+#         for question in user_questions[-5:]:
+#             st.markdown(f"- {question}")
+#     else:
+#         st.info("No questions yet!")
+
+# # --- App Header ---
+# st.markdown("<div class='header-box'>🎨 Agentic RAG Chatbot</div>", unsafe_allow_html=True)
+
+# # --- Intro Message ---
+# st.markdown("""
+# <div style="text-align: center; color: #6F6259; font-size: 14px; margin-bottom: 20px;">
+#     <b>How it works:</b> Drop your documents in the sidebar, then ask questions about them!
+# </div>
+# """, unsafe_allow_html=True)
+
+# # --- Chat Section ---
+# chat_container = st.container()
+# with chat_container:
+#     for message in st.session_state.chat_history:
+#         role = message["role"]
+#         content = message["content"]
+#         st.markdown(f"<div class='chat-bubble-{role}'>{content}</div>", unsafe_allow_html=True)
+#         if role == "assistant" and "sources" in message:
+#             with st.expander("🔍 View Sources"):
+#                 for i, doc in enumerate(message["sources"]):
+#                     st.info(f"**Source {i + 1}:**\n\n{doc.page_content}")
+
+# # --- User Input & Agent Logic ---
+# if user_query := st.chat_input("Ask a question about your documents..."):
+#     st.session_state.chat_history.append({"role": "user", "content": user_query})
+#     with chat_container:
+#         st.markdown(f"<div class='chat-bubble-user'>{user_query}</div>", unsafe_allow_html=True)
+
+#     with st.spinner("Thinking..."):
+#         # --- MCP WORKFLOW ---
+#         trace_id = str(uuid.uuid4())
+#         retrieval_request = {
+#             "sender": "Coordinator", "receiver": "RetrievalAgent", "type": "RETRIEVAL_REQUEST",
+#             "trace_id": trace_id, "payload": {"query": user_query}
+#         }
+#         retrieved_context = st.session_state.retrieval_agent.retrieve_context(
+#             retrieval_request["payload"]["query"]
+#         )
+#         context_response = {
+#             "sender": "RetrievalAgent", "receiver": "LLMResponseAgent", "type": "CONTEXT_RESPONSE",
+#             "trace_id": trace_id, "payload": {"top_chunks": retrieved_context, "query": user_query}
+#         }
+#         ai_response = LLMResponseAgent(
+#             query=context_response["payload"]["query"],
+#             context_chunks=context_response["payload"]["top_chunks"]
+#         )
+
+#     assistant_message = {
+#         "role": "assistant",
+#         "content": ai_response,
+#         "sources": retrieved_context
+#     }
+#     st.session_state.chat_history.append(assistant_message)
+
+
+#     st.rerun()
+
+
 
 import streamlit as st
 import uuid
 from agents import IngestionAgent, RetrievalAgent, LLMResponseAgent
 
 # --- Page Config ---
-st.set_page_config(page_title="Agentic RAG Chatbot", page_icon="🎨", layout="wide")
+st.set_page_config(page_title="Agentic RAG Chatbot", page_icon="🤖", layout="wide")
 
-# --- NEW CSS: Warm Pastel Orange & Cream Theme ---
-st.markdown("""
-<style>
-/* Core body and font styles */
-body {
-    background-color: #FAF3E0; /* Soft Cream Background */
-    font-family: 'Helvetica Neue', sans-serif;
-}
+# --- App Header ---
+st.markdown("## 🤖 Agentic RAG Chatbot")
+st.markdown("---")
 
-/* Header Box */
-.header-box {
-    background: #FFFFFF;
-    border: 1px solid #E5DCC3;
-    padding: 18px;
-    border-radius: 12px;
-    text-align: center;
-    font-size: 24px;
-    font-weight: 600;
-    color: #4E423D; /* Warm dark brown text */
-    margin-bottom: 25px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-}
 
-/* Chat Bubbles - Warm & Friendly Design */
-.chat-bubble-user {
-    background-color: #FAB488; /* Pastel Orange */
-    color: #4E423D;
-    padding: 14px 20px;
-    border-radius: 18px 18px 4px 18px;
-    margin: 6px 0;
-    max-width: 70%;
-    float: right;
-    clear: both;
-    line-height: 1.6;
-    border: 1px solid #F8A56E;
-}
-.chat-bubble-assistant {
-    background-color: #FFFFFF; /* Clean white for contrast */
-    color: #4E423D;
-    border: 1px solid #E5DCC3;
-    padding: 14px 20px;
-    border-radius: 18px 18px 18px 4px;
-    margin: 6px 0;
-    max-width: 80%;
-    float: left;
-    clear: both;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    line-height: 1.6;
-}
-
-/* Expander for sources */
-.stExpander {
-    border: none !important;
-    box-shadow: none !important;
-}
-.st-emotion-cache-1h9usn1 { /* Targets the expander header */
-    font-size: 14px;
-    color: #6F6259;
-}
-</style>
-""", unsafe_allow_html=True)
-
-# --- Session State ---
+# --- Session State Initialization ---
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 if "retrieval_agent" not in st.session_state:
     st.session_state.retrieval_agent = RetrievalAgent()
 
-# --- Sidebar ---
+
+# --- Sidebar for Document Upload ---
 with st.sidebar:
-    st.markdown("## 📂 Drop Your Documents")
+    st.markdown("## 📂 Upload Documents")
     uploaded_files = st.file_uploader(
-        "Upload files here",
+        "Upload PDF, DOCX, PPTX, CSV, or TXT files",
         type=["pdf", "docx", "pptx", "csv", "txt"],
         accept_multiple_files=True
     )
 
     if uploaded_files and st.button("🚀 Process Documents"):
-        with st.spinner("Processing documents..."):
+        with st.spinner("Processing documents... This may take a moment."):
+            all_text_content = []
             for file in uploaded_files:
                 text_content = IngestionAgent(file)
                 if text_content:
-                    st.session_state.retrieval_agent.ingest_and_embed(text_content)
-        st.success("✅ Documents processed successfully!")
+                    all_text_content.append(text_content)
+            
+            # Combine all text and ingest at once
+            if all_text_content:
+                combined_text = "\n\n".join(all_text_content)
+                st.session_state.retrieval_agent.ingest_and_embed(combined_text)
+                st.success("✅ Documents processed successfully!")
+            else:
+                st.error("No text could be extracted from the uploaded documents.")
 
-    st.markdown("---")
-    st.markdown("## 🕑 Recent Questions")
-    if st.session_state.chat_history:
-        user_questions = [msg['content'] for msg in st.session_state.chat_history if msg['role'] == 'user']
-        for question in user_questions[-5:]:
-            st.markdown(f"- {question}")
-    else:
-        st.info("No questions yet!")
 
-# --- App Header ---
-st.markdown("<div class='header-box'>🎨 Agentic RAG Chatbot</div>", unsafe_allow_html=True)
-
-# --- Intro Message ---
-st.markdown("""
-<div style="text-align: center; color: #6F6259; font-size: 14px; margin-bottom: 20px;">
-    <b>How it works:</b> Drop your documents in the sidebar, then ask questions about them!
-</div>
-""", unsafe_allow_html=True)
-
-# --- Chat Section ---
-chat_container = st.container()
-with chat_container:
-    for message in st.session_state.chat_history:
-        role = message["role"]
-        content = message["content"]
-        st.markdown(f"<div class='chat-bubble-{role}'>{content}</div>", unsafe_allow_html=True)
-        if role == "assistant" and "sources" in message:
+# --- REVISED CHAT DISPLAY using st.chat_message ---
+# This loop now correctly handles and displays the chat history.
+for message in st.session_state.chat_history:
+    with st.chat_message(message["role"]):
+        # Render the main content with markdown support
+        st.markdown(message["content"])
+        
+        # Display sources if they exist for an assistant message
+        if message["role"] == "assistant" and "sources" in message and message["sources"]:
             with st.expander("🔍 View Sources"):
                 for i, doc in enumerate(message["sources"]):
                     st.info(f"**Source {i + 1}:**\n\n{doc.page_content}")
 
+
 # --- User Input & Agent Logic ---
 if user_query := st.chat_input("Ask a question about your documents..."):
+    # Add user message to chat history and display it
     st.session_state.chat_history.append({"role": "user", "content": user_query})
-    with chat_container:
-        st.markdown(f"<div class='chat-bubble-user'>{user_query}</div>", unsafe_allow_html=True)
+    with st.chat_message("user"):
+        st.markdown(user_query)
 
+    # Process the query and get the AI response
     with st.spinner("Thinking..."):
         # --- MCP WORKFLOW ---
         trace_id = str(uuid.uuid4())
+        
+        # 1. Retrieval Request
         retrieval_request = {
             "sender": "Coordinator", "receiver": "RetrievalAgent", "type": "RETRIEVAL_REQUEST",
             "trace_id": trace_id, "payload": {"query": user_query}
@@ -824,6 +924,8 @@ if user_query := st.chat_input("Ask a question about your documents..."):
         retrieved_context = st.session_state.retrieval_agent.retrieve_context(
             retrieval_request["payload"]["query"]
         )
+        
+        # 2. Context Response to LLM
         context_response = {
             "sender": "RetrievalAgent", "receiver": "LLMResponseAgent", "type": "CONTEXT_RESPONSE",
             "trace_id": trace_id, "payload": {"top_chunks": retrieved_context, "query": user_query}
@@ -833,11 +935,13 @@ if user_query := st.chat_input("Ask a question about your documents..."):
             context_chunks=context_response["payload"]["top_chunks"]
         )
 
+    # Add AI response to chat history and display it
     assistant_message = {
         "role": "assistant",
         "content": ai_response,
-        "sources": retrieved_context
+        "sources": retrieved_context  # Attach the sources here
     }
     st.session_state.chat_history.append(assistant_message)
-
+    
+    # Rerun the script to display the new assistant message immediately
     st.rerun()
