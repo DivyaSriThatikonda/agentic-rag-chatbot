@@ -39,11 +39,11 @@ Follow these steps to set up and run the project locally.
 
 1. Prerequisites
    
-Python 3.9 or higher
+a. Python 3.9 or higher
 
-An active Pinecone account
+b. An active Pinecone account
 
-An active OpenRouter.ai account
+c. An active OpenRouter.ai account
 
 2. Clone the Repository
    
@@ -53,11 +53,11 @@ cd your-repo-name
 4. Create a Virtual Environment
 It's highly recommended to use a virtual environment to manage dependencies.
 
-# For Windows
+**For Windows**
 python -m venv .venv
 .\.venv\Scripts\activate
 
-# For macOS/Linux
+**For macOS/Linux**
 python3 -m venv .venv
 source .venv/bin/activate
 
