@@ -850,12 +850,32 @@ import uuid
 from agents import IngestionAgent, RetrievalAgent, LLMResponseAgent
 
 # --- Page Config ---
-st.set_page_config(page_title="Agentic RAG Chatbot", page_icon="🤖", layout="wide")
+st.set_page_config(page_title="Agentic RAG Chatbot", page_icon="🎨", layout="wide")
 
-# --- App Header ---
-st.markdown("## 🤖 Agentic RAG Chatbot")
-st.markdown("---")
+# --- Custom CSS for Header and Theme (Chat bubbles are now handled by Streamlit) ---
+st.markdown("""
+<style>
+/* Core body and font styles */
+body {
+    background-color: #FAF3E0; /* Soft Cream Background */
+    font-family: 'Helvetica Neue', sans-serif;
+}
 
+/* Header Box */
+.header-box {
+    background: #FFFFFF;
+    border: 1px solid #E5DCC3;
+    padding: 18px;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: 600;
+    color: #4E423D; /* Warm dark brown text */
+    margin-bottom: 25px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+</style>
+""", unsafe_allow_html=True)
 
 # --- Session State Initialization ---
 if "chat_history" not in st.session_state:
@@ -863,25 +883,23 @@ if "chat_history" not in st.session_state:
 if "retrieval_agent" not in st.session_state:
     st.session_state.retrieval_agent = RetrievalAgent()
 
-
-# --- Sidebar for Document Upload ---
+# --- Sidebar ---
 with st.sidebar:
-    st.markdown("## 📂 Upload Documents")
+    st.markdown("## 📂 Drop Your Documents")
     uploaded_files = st.file_uploader(
-        "Upload PDF, DOCX, PPTX, CSV, or TXT files",
+        "Upload files here",
         type=["pdf", "docx", "pptx", "csv", "txt"],
         accept_multiple_files=True
     )
 
     if uploaded_files and st.button("🚀 Process Documents"):
-        with st.spinner("Processing documents... This may take a moment."):
+        with st.spinner("Processing documents..."):
             all_text_content = []
             for file in uploaded_files:
                 text_content = IngestionAgent(file)
                 if text_content:
                     all_text_content.append(text_content)
             
-            # Combine all text and ingest at once
             if all_text_content:
                 combined_text = "\n\n".join(all_text_content)
                 st.session_state.retrieval_agent.ingest_and_embed(combined_text)
@@ -889,34 +907,46 @@ with st.sidebar:
             else:
                 st.error("No text could be extracted from the uploaded documents.")
 
+    st.markdown("---")
+    # --- RE-ADDED: Recent Questions History ---
+    st.markdown("## 🕑 Recent Questions")
+    if st.session_state.chat_history:
+        user_questions = [msg['content'] for msg in st.session_state.chat_history if msg['role'] == 'user']
+        # Display the last 5 unique questions
+        for question in list(dict.fromkeys(user_questions))[-5:]:
+            st.markdown(f"- *{question}*")
+    else:
+        st.info("No questions yet!")
 
-# --- REVISED CHAT DISPLAY using st.chat_message ---
-# This loop now correctly handles and displays the chat history.
+# --- App Header ---
+st.markdown("<div class='header-box'>🎨 Agentic RAG Chatbot</div>", unsafe_allow_html=True)
+
+# --- RE-ADDED: Intro Message ---
+st.markdown("""
+<div style="text-align: center; color: #6F6259; font-size: 14px; margin-bottom: 20px;">
+    <b>How it works:</b> Drop your documents in the sidebar, then ask questions about them!
+</div>
+""", unsafe_allow_html=True)
+
+# --- Chat Display using st.chat_message for proper markdown rendering ---
 for message in st.session_state.chat_history:
     with st.chat_message(message["role"]):
-        # Render the main content with markdown support
         st.markdown(message["content"])
         
-        # Display sources if they exist for an assistant message
         if message["role"] == "assistant" and "sources" in message and message["sources"]:
             with st.expander("🔍 View Sources"):
                 for i, doc in enumerate(message["sources"]):
                     st.info(f"**Source {i + 1}:**\n\n{doc.page_content}")
 
-
 # --- User Input & Agent Logic ---
 if user_query := st.chat_input("Ask a question about your documents..."):
-    # Add user message to chat history and display it
     st.session_state.chat_history.append({"role": "user", "content": user_query})
     with st.chat_message("user"):
         st.markdown(user_query)
 
-    # Process the query and get the AI response
     with st.spinner("Thinking..."):
         # --- MCP WORKFLOW ---
         trace_id = str(uuid.uuid4())
-        
-        # 1. Retrieval Request
         retrieval_request = {
             "sender": "Coordinator", "receiver": "RetrievalAgent", "type": "RETRIEVAL_REQUEST",
             "trace_id": trace_id, "payload": {"query": user_query}
@@ -924,8 +954,6 @@ if user_query := st.chat_input("Ask a question about your documents..."):
         retrieved_context = st.session_state.retrieval_agent.retrieve_context(
             retrieval_request["payload"]["query"]
         )
-        
-        # 2. Context Response to LLM
         context_response = {
             "sender": "RetrievalAgent", "receiver": "LLMResponseAgent", "type": "CONTEXT_RESPONSE",
             "trace_id": trace_id, "payload": {"top_chunks": retrieved_context, "query": user_query}
@@ -935,13 +963,10 @@ if user_query := st.chat_input("Ask a question about your documents..."):
             context_chunks=context_response["payload"]["top_chunks"]
         )
 
-    # Add AI response to chat history and display it
     assistant_message = {
         "role": "assistant",
         "content": ai_response,
-        "sources": retrieved_context  # Attach the sources here
+        "sources": retrieved_context
     }
     st.session_state.chat_history.append(assistant_message)
-    
-    # Rerun the script to display the new assistant message immediately
     st.rerun()
