@@ -1,37 +1,3 @@
-# --- Core Application & Utilities ---
-#streamlit
-#python-dotenv
-#pandas
-
-# --- LangChain Core ---
-#langchain
-#langchain-community
-
-# --- LangChain Integrations ---
-# For using ChatOpenAI class structure (pointed at OpenRouter)
-#langchain-openai
-# For HuggingFace embedding models
-#langchain-huggingface
-# For Pinecone vector store integration
-#langchain-pinecone
-
-# --- Vector Store SDK ---
-# The new, correctly named package for Pinecone (replaces pinecone-client)
-#pinecone
-
-# --- Document Loaders ---
-# Required for PyPDFLoader
-#pypdf
-# Required for Docx2txtLoader
-#docx2txt
-# Required for UnstructuredPowerPointLoader. The [pptx] extra ensures pptx dependencies are included.
-#unstructured[pptx]
-
-# --- Embeddings Model ---
-# The underlying library for the embedding model you chose
-#sentence-transformers
-
-
 #--- Core Application & Utilities ---
 streamlit
 python-dotenv
@@ -68,4 +34,5 @@ unstructured[pptx]
 #--- Embeddings Model ---
 #The underlying library for the embedding model you chose
 sentence-transformers
+
 
