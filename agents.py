@@ -14,7 +14,7 @@ from pinecone import Pinecone
 # Load environment variables from .env file
 load_dotenv()
 
-# Agent 1: IngestionAgent (Updated with better CSV handling)
+# Agent 1: IngestionAgent 
 def IngestionAgent(uploaded_file):
     """
     Parses documents by writing them to a temporary file and then cleaning up.
@@ -62,7 +62,7 @@ def IngestionAgent(uploaded_file):
 
     return documents_text
 
-# Agent 2: RetrievalAgent (Updated with Clear and Reload logic)
+# Agent 2: RetrievalAgent 
 class RetrievalAgent:
     def __init__(self, model_name="sentence-transformers/all-MiniLM-L6-v2"):
         """Initializes the agent with an embedding model and a Pinecone index."""
@@ -140,6 +140,7 @@ def LLMResponseAgent(query: str, context_chunks: list):
     chain = prompt | llm | StrOutputParser()
     response = chain.invoke({"context": context_str, "question": query})
     return response
+
 
 
 
