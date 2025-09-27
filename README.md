@@ -101,3 +101,11 @@ b. Create a new index with the following specifications:
 Once the setup is complete, run the following command in your terminal from the project's root directory:
 
 streamlit run app.py
+
+## Live app : 
+
+https://agentic-rag-chatbot-m7l2atbtcnj6hwhyrvhgnx.streamlit.app/
+
+## Video:
+
+https://www.loom.com/share/44edd6d0e6a046cb87ed3759477f5837?sid=1c3a976c-27fc-45f5-89b9-fa24e9729368
