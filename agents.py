@@ -135,10 +135,10 @@ def LLMResponseAgent(query: str, context_chunks: list):
     llm = ChatOpenAI(
         # model="x-ai/grok-4-fast:free",
         # openai_api_key=os.getenv("OPENROUTER_API_KEY"),
-        # model="deepseek/deepseek-r1:free",
-        # openai_api_key=os.getenv("OPENROUTER_API_KEY"),
-        model="meta-llama/llama-4-maverick:free",
+        model="deepseek/deepseek-r1:free",
         openai_api_key=os.getenv("OPENROUTER_API_KEY"),
+        # model="meta-llama/llama-4-maverick:free",
+        # openai_api_key=os.getenv("OPENROUTER_API_KEY"),
         openai_api_base="https://openrouter.ai/api/v1"
     )
     chain = prompt | llm | StrOutputParser()
@@ -146,6 +146,7 @@ def LLMResponseAgent(query: str, context_chunks: list):
     return response
 
 # pcsk_6jXQBY_PzGy5yN79RBv7HDSeT48UvQse5PCxoeqL1MK2iSZJR5nrcnWq7b5oxu3599ubbX
+
 
 
 
